@@ -3,16 +3,6 @@ from bs4 import BeautifulSoup
 
 def main(userfruit: str):
 
-    if userfruit.lower() == 'spin':
-
-        return 'Fruit Spring is in stock'
-    
-    elif userfruit.lower() == 'rocket':
-
-        return 'Fruit Rocket is in stock'
-    
-    
-
     r = requests.get(f'https://blox-fruits.fandom.com/wiki/Blox_Fruits_%22Stock%22')
 
     current_stock_id: str = 'mw-customcollapsible-Current'
