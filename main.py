@@ -1,14 +1,15 @@
-import requests, re
+import requests, re, datetime
 from bs4 import BeautifulSoup
-from config import ps, e, all_fruits
-import smtplib
-import time
 
+def main(userfruit: str):
 
+    if userfruit.lower() == 'spin':
 
+        return 'Fruit Spring is in stock'
+    
+    elif userfruit.lower() == 'rocket':
 
-
-def main():
+        return 'Fruit Rocket is in stock'
 
     r = requests.get(f'https://blox-fruits.fandom.com/wiki/Blox_Fruits_%22Stock%22')
 
@@ -18,50 +19,60 @@ def main():
 
     div_tags = soup.find_all('div', {'class': 'fruit-stock'})
 
-    stock = ["rocket", "spin"]
+    fruits = set()
 
-    email = e
-    receiver = None
-
-    server = smtplib.SMTP('smtp.gmail.com', 587)
-
-    server.starttls()
-
-    server.login(email, ps)
-
-    fruit = input('Please enter the fruit: ')
-
-
-    if not fruit.lower().capitalize() in all_fruits:
-
-        print('Fruit ' + fruit + ' does not exist. Make sure to check your spelling, maybe you made a typo?')
-        return
-
-    receiver = input('Please enter your email so we can notify you when your fruit is in stock: ')
-
-
-    print('You can now minimize the window, we will send you an email when your fruit appears in stock!\nMake sure to check the "Spam" tab, since the email might go here\n')
+    money_b = '<span class="color-currency(Money)"> <a href="/wiki/Money" title="Money"><img alt="MoneyIcon" class="lazyload" data-image-key="MoneyIcon.png" data-image-name="MoneyIcon.png" data-relevant="0" data-src="https://static.wikia.nocookie.net/roblox-blox-piece/images/4/47/MoneyIcon.png/revision/latest/scale-to-width-down/10?cb=20240729150529" decoding="async" height="20" loading="lazy" src="data:image/gif;base64,R0lGODlhAQABAIABAAAAAP///yH5BAEAAAEALAAAAAABAAEAQAICTAEAOw%3D%3D" width="10"/></a> '
+    money_a = "</span></div></div>"
 
     for div in div_tags:
 
         if current_stock_id in str(div.find_parent('div')):
 
+            price = None
+            
+            p1 = str(div).split(money_b)[1]
+            p2 = str(p1).split(money_a)[0]
+
+            price = p2
+
             frt = str(re.search(r'title=([^>]+)', str(div)).group(1))
 
-            stock.append(frt.lower().replace('"', ''))
+            fruits.add(frt + ' for ' + price + '$')
 
-    msg = f'Subject: Your fruit is in stock!\n\nThe {fruit} Blox Fruit is in stock! https://www.roblox.com/games/2753915549/Blox-Fruits'
 
-    while True:
+    stock = ['rocket for 5,000$', 'spin for 7,500$']
 
-        if fruit in stock:
+    for fruit in fruits:
 
-            server.sendmail(email, receiver, msg)
+        a = str(fruit).replace('"', "")
+
+        stock.append(a)
+
+    fruits_on_stock = '2. Fruits on stock: ' + ', '.join(x.title() for x in stock)
+
+    fruits_lower = [x.lower() for x in stock]
+
+    fruit_lower = str(userfruit).replace('"', "").lower()
+
+    b = None
+
+    for e in fruits_lower:
+
+        if fruit_lower in e.split():
+
+            b = e.split('for ')[1]
+
+            result = f'Fruit {userfruit.capitalize()} is in stock for ' + b
+
             break
+        
+        else:
+        
+            result = f'Fruit {userfruit} is not in stock'
 
-        time.sleep(30)
+    return '1. ' + result + '\n\n2. Fruits in stock: ' + ', '.join(x.title().replace("For", "for") for x in stock)
 
 
-if __name__ == '__main__':
-
-    main()
+fruitinput = input('Type in the name of the fruit\n\nFruit: ')
+print('\n' + main(fruitinput), '\n')
+input()
